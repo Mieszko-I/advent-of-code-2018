@@ -18,10 +18,10 @@ function ArrNumMinDif(arr, num) {
 
 function SmallestArrId(arr) {
 
-    var smallest;
+    var smallest = 0;
 
     for (var i = 0; i < arr.length; i++) {
-        if (arr[i] < arr[smallest] || typeof smallest == 'undefined') {
+        if (arr[i] < arr[smallest]) {
             smallest = i;
         }
     }
@@ -88,7 +88,7 @@ function letToNum(let) {
             return 26;
 
     }
-    
+
 }
 
 function numToLet(num) {
@@ -156,15 +156,45 @@ function biggestArr(arr) {
 
     var biggest = 0;
 
-    for(var i = 0; i<arr.length; i++) {
+    for (var i = 0; i < arr.length; i++) {
 
-        if(arr[i] > biggest) {
+        if (arr[i] > biggest) {
             biggest = arr[i];
         }
 
     }
 
     return biggest;
+}
+
+function isThere(v, arr) {
+
+    for (var i = 0; i < arr.length; i++) {
+
+        if (arr[i] == v) {
+            return true;
+        }
+
+    }
+
+    return false;
+}
+
+function whoDid(arr, val) {
+
+    for (var i = 0; i < arr.length; i++) {
+
+        for (var j = 0; j < arr[i].length; j++) {
+
+            if (arr[i][j] == val) {
+                return i;
+            }
+
+        }
+
+    }
+    return -1;
+
 }
 
 function solve() {
@@ -209,14 +239,41 @@ function solve() {
         }
 
     }
-debugger;
+
     var at_once = [];
+    var new_at_once = [];
     var poss;
     var exists;
-    var workers = [0, 0];
+    var worker;
+    var different;
+    var workers = [0, 0, 0, 0, 0];
+    var workers_work = [
+        [],
+        [],
+        [],
+        [],
+        []
+    ];
     var solution = 0;
 
-    while (typeof steps[0] !== 'undefined') {
+    for (var i = 0; i < all.length; i++) {
+        different = true;
+
+        for (var j = 0; j < steps.length; j++) {
+
+            if(all[i] == steps[j][0]) {
+                different = false;
+            }
+
+        }
+
+        if(different) {
+            steps.push([all[i], '-']);
+        }
+
+    }
+
+    while (steps[0]) {
 
         for (var i = 0; i < 26; i++) {
             poss = true;
@@ -227,58 +284,137 @@ debugger;
                 if (steps[j][1] == numToLet(i)) {
                     poss = false;
                 }
-                if (steps[j][0] = numToLet(i)) {
+                if (steps[j][0] == numToLet(i)) {
                     exists = true;
                 }
 
             }
 
-            if (poss && exists) {
+            if (poss && exists && !isThere(numToLet(i), done)) {
 
-                at_once.push(i+1);
+                at_once.push(i + 1);
                 done.push(numToLet(i));
 
             }
 
         }
+
+        at_once.sort(function(a, b) {
+            return a - b;
+        });
+
+        if (at_once[0]) {
+            while (at_once[0]) {
+
+                worker = SmallestArrId(workers);
+                workers[worker] += at_once[0] + 60;
+                workers_work[worker].push(numToLet(at_once[0] - 1));
+                new_at_once.push(at_once.splice(0, 1)[0]);
 debugger;
-        while (typeof at_once[0] != 'undefined') {
+            }
+        } else {
 
             for (var i = 0; i < workers.length; i++) {
+                if (workers[i] < workers[whoDid(workers_work, numToLet(new_at_once[0] - 1))]) {
+                    workers[i] = workers[whoDid(workers_work, numToLet(new_at_once[0] - 1))];
+                }
+            }
 
-                if (typeof at_once[0] == 'undefined') {
-                    break;
-                } else if (workers[i] <= solution) {
-                    workers[i] += at_once[0];
-                    at_once.splice(0, 1);
+            for (var i = 0; i < steps.length; i++) {
+
+                if (steps[i][0] == numToLet(new_at_once[0] - 1)) {
+                    steps.splice(i, 1);
+                    i--;
                 }
 
             }
-
-            solution += ArrNumMinDif(workers, solution)[0];
-
-        }
-    }
-debugger;
-    for (i = done.length; i++;) {
-
-        for (j = 0; j < all.length; j++) {
-
-            if (done[i] == all[j]) {
-
-                all.splice(j, 1);
-                j--;
-                break;
-            }
-
+            new_at_once.splice(0, 1);
         }
 
     }
 
-    workers[SmallestArrId(workers)] += letToNum(all[0]);
 
-    solution += solution - biggestArr(workers);
+
+    solution = biggestArr(workers);
 
     return solution;
-
 }
+
+
+
+
+    // var data = document.querySelector('.code').innerText;
+
+    // function part1(data){
+    //     data = data.split('\n').map(a => a.match(/ [A-Z] /g).map(a => a.trim()));
+    //     let counts = [];
+    //     [].concat(...data).filter((e, i, a) => i == a.indexOf(e)).forEach((e, i, a) => {
+    //         counts.push({
+    //             c: e,
+    //             r: () => data.filter(b => b[1] == e)
+    //         })
+    //     });
+        
+    //     var result = '';
+    //     while(counts.filter(a => a).length){
+    //         var next = counts
+    //             .filter(a => !a.r().length)
+    //             .sort((a, b) => b.c > a.c ? -1 : 1)[0];
+    //         delete counts[counts.indexOf(next)]
+    //         result += next.c;
+    //         data.filter(a => a[0] == next.c).forEach(a => {
+    //             delete data[data.indexOf(a)]
+    //         });
+    //     }
+    //     return result;
+    // }
+    
+    // console.log(part1(data));
+    
+    // function part2(data, workers){
+    //     data = data.split('\n').map(a => a.match(/ [A-Z] /g).map(a => a.trim()));
+    //     let counts = [];
+    //     [].concat(...data).filter((e, i, a) => i == a.indexOf(e)).forEach((e, i, a) => {
+    //         counts.push({
+    //             c: e,
+    //             r: () => data.filter(b => b[1] == e),
+    //             t: 60 + e.charCodeAt() - 64
+    //         })
+    //     });
+    //     var stash = [];
+    //     var count = -1;
+    //     var result = '';
+    //     var desired = counts.length;
+    //     while(result.length != desired){
+    //         count++;
+    //         let newStash = [];
+    //         stash.forEach(e => {
+    //             if(e.t > 1){
+    //                 newStash.push({c: e.c, t: e.t - 1});
+    //             }
+    //             else {
+    //                 result += e.c;
+    //                 data.filter(a => a[0] == e.c).forEach(a => {
+    //                     delete data[data.indexOf(a)]
+    //                 });
+    //             }            
+    //         });
+    //         stash = newStash;
+    //         if(stash.length == workers)
+    //             continue; 
+    //         var candidates = counts
+    //             .filter(a => !a.r().length)
+    //             .sort((a, b) => b.c > a.c ? -1 : 1).slice(0, workers - stash.length);
+    //         candidates.forEach(e => {
+    //             delete counts[counts.indexOf(e)]
+    //             stash.push({
+    //                 c: e.c,
+    //                 t: e.t
+    //             });
+    //         })
+    //     }
+    //     return count ;
+    // }
+    
+    // console.log(part2(data, 5))
+
