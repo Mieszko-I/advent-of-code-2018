@@ -1,12 +1,68 @@
-const clockTurn = (num, arr) => {
-    if (num > arr.length-1) {
-        return num - arr.length;
-    } else if(num < 0) {
-        return arr.length + num + 1;
-    } else {
-        return num;
-    }
+function LinkedList() {}
+LinkedList.prototype = {
+    length: 0,
+    first: null,
+    last: null
 };
+
+LinkedList.Circular = function () {};
+LinkedList.Circular.prototype = new LinkedList();
+
+LinkedList.Circular.prototype.append = function (node) {
+    if (this.first === null) {
+        node.prev = node;
+        node.next = node;
+        this.first = node;
+        this.last = node;
+    } else {
+        node.prev = this.last;
+        node.next = this.first;
+        this.first.prev = node;
+        this.last.next = node;
+        this.last = node;
+    }
+    this.length++;
+};
+
+LinkedList.Circular.prototype.insertAfter = function (node, newNode) {
+    newNode.prev = node;
+    newNode.next = node.next;
+    node.next.prev = newNode;
+    node.next = newNode;
+    if (newNode.prev == this.last) {
+        this.last = newNode;
+    }
+    this.length++;
+};
+
+LinkedList.Circular.prototype.remove = function (node) {
+    if (this.length > 1) {
+        node.prev.next = node.next;
+        node.next.prev = node.prev;
+        if (node == this.first) {
+            this.first = node.next;
+        }
+        if (node == this.last) {
+            this.last = node.prev;
+        }
+    } else {
+        this.first = null;
+        this.last = null;
+    }
+    node.prev = null;
+    node.next = null;
+    this.length--;
+    return node;
+};
+
+
+LinkedList.Node = function (data) {
+    this.prev = null;
+    this.next = null;
+    this.data = data;
+};
+
+
 
 function solve() {
 
@@ -33,27 +89,40 @@ function solve() {
 
     }
 
-    const circle = [0, 2, 1];
-    let pointer = 1;
+    const list = LinkedList.Circular.prototype;
+    list.append({
+        v: 0
+    });
+    list.append({
+        v: 1
+    });
+    list.insertAfter(list.first, {
+        v: 2
+    });
+    let pointer = list.first.next;
     const players_points = new Array(players).fill(0);
 
     for (let i = 3; i <= marbles; i++) {
 
-        if (circle.length == pointer + 1) {
+        if (list.last.v == pointer.v) {
 
-            circle.splice(1, 0, i);
-            pointer = 1;
+            list.insertAfter(list.first, {
+                v: i
+            })
+            pointer = list.first.next;
 
         } else if (!(i % 23)) {
 
             players_points[i % players] += i;
-            players_points[i % players] += circle.splice(clockTurn(pointer - 7, circle), 1)[0];
-            pointer = clockTurn(pointer - 7, circle);
+            players_points[i % players] += list.remove(pointer.prev.prev.prev.prev.prev.prev.prev).v;
+            pointer = pointer.prev.prev.prev.prev.prev.prev;
 
         } else {
 
-            circle.splice(pointer + 2, 0, i);
-            pointer += 2;
+            list.insertAfter(pointer.next, {
+                v: i
+            });
+            pointer = pointer.next.next;
 
         }
 
