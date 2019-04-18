@@ -64,76 +64,74 @@ LinkedList.Node = function (data) {
 
 
 
-function solve() {
 
-    const get = document.querySelector('.code').innerText;
-    let bufor = 0;
-    let get_input = false;
-    let players, marbles;
 
-    for (let i = 0; i < get.length; i++) {
+const get = '491 players; last marble is worth 71058 points';
+let bufor = 0;
+let get_input = false;
+let players, marbles;
 
-        if (get.charAt(i) == ' ' && bufor == 0) {
-            players = parseInt(get.substring(bufor, i));
-            bufor++;
-        }
+for (let i = 0; i < get.length; i++) {
 
-        if (!isNaN(get.charAt(i)) && get.charAt(i) != ' ' && bufor == 1) {
-            bufor = i;
-            get_input = true;
-        }
-
-        if (get_input && get.charAt(i) == ' ') {
-            marbles = parseInt(get.substring(bufor, i));
-        }
-
+    if (get.charAt(i) == ' ' && bufor == 0) {
+        players = parseInt(get.substring(bufor, i));
+        bufor++;
     }
 
-    const list = LinkedList.Circular.prototype;
-    list.append({
-        v: 0
-    });
-    list.append({
-        v: 1
-    });
-    list.insertAfter(list.first, {
-        v: 2
-    });
-    let pointer = list.first.next;
-    const players_points = new Array(players).fill(0);
-
-    for (let i = 3; i <= marbles; i++) {
-
-        if (list.last.v == pointer.v) {
-
-            list.insertAfter(list.first, {
-                v: i
-            })
-            pointer = list.first.next;
-
-        } else if (!(i % 23)) {
-
-            players_points[i % players] += i;
-            players_points[i % players] += list.remove(pointer.prev.prev.prev.prev.prev.prev.prev).v;
-            pointer = pointer.prev.prev.prev.prev.prev.prev;
-
-        } else {
-
-            list.insertAfter(pointer.next, {
-                v: i
-            });
-            pointer = pointer.next.next;
-
-        }
-
+    if (!isNaN(get.charAt(i)) && get.charAt(i) != ' ' && bufor == 1) {
+        bufor = i;
+        get_input = true;
     }
 
-    return players_points.reduce((prev, cur) => {
-        if (prev >= cur) {
-            return prev;
-        } else {
-            return cur;
-        }
-    });
+    if (get_input && get.charAt(i) == ' ') {
+        marbles = parseInt(get.substring(bufor, i));
+    }
 
 }
+
+const list = LinkedList.Circular.prototype;
+list.append({
+    v: 0
+});
+list.append({
+    v: 1
+});
+list.insertAfter(list.first, {
+    v: 2
+});
+let pointer = list.first.next;
+const players_points = new Array(players).fill(0);
+
+for (let i = 3; i <= marbles; i++) {
+
+    if (list.last.v == pointer.v) {
+
+        list.insertAfter(list.first, {
+            v: i
+        })
+        pointer = list.first.next;
+
+    } else if (!(i % 23)) {
+
+        players_points[i % players] += i;
+        players_points[i % players] += list.remove(pointer.prev.prev.prev.prev.prev.prev.prev).v;
+        pointer = pointer.prev.prev.prev.prev.prev.prev;
+
+    } else {
+
+        list.insertAfter(pointer.next, {
+            v: i
+        });
+        pointer = pointer.next.next;
+
+    }
+
+}
+
+console.log(players_points.reduce((prev, cur) => {
+    if (prev >= cur) {
+        return prev;
+    } else {
+        return cur;
+    }
+}));
